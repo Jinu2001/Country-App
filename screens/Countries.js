@@ -8,6 +8,7 @@ import {
   Pressable,
   TextInput,
   Alert,
+  FlatList,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import SearchBar from "./SearchBar";
@@ -52,74 +53,79 @@ export default function Countries({ navigation }) {
   }
 
   return (
-    <View>
-      <SafeAreaView style={Styles.container}>
-        <View
+    <SafeAreaView style={Styles.container}>
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: "#fff",
+          zIndex: 10,
+          paddingTop: 20,
+          paddingHorizontal: 16,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.8,
+        }}
+      >
+        <Image source={require("../assets/icon.png")} />
+        <Text
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: "#fff",
-            zIndex: 10,
-            paddingTop: 20,
-            paddingHorizontal: 16,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.8,
+            fontWeight: "800",
+            fontSize: 24,
+            paddingVertical: 20,
           }}
         >
-          <Image source={require("../assets/icon.png")} />
-
-          <Text
-            style={{
-              fontWeight: "800",
-              fontSize: 24,
-              paddingVertical: 20,
-            }}
+          Country App
+        </Text>
+      </View>
+  
+      {/* Remove the ScrollView and use FlatList */}
+      <FlatList
+        data={results ? results : countries} // The array of data to render
+        keyExtractor={(country) => country.name.common} // Unique key for each item
+        renderItem={({ item }) => (
+          <Pressable
+            onPress={() => navigation.navigate("Country", item)}
+            key={item.name.common}
+            style={Styles.gridItem}
           >
-            Country App
-          </Text>
-        </View>
-        <ScrollView
-          contentContainerStyle={{
-            paddingVertical: 70,
-            paddingHorizontal: 10,
-          }}
-          showsHorizontalScrollIndicator={false}
-        >
+            <Image
+              source={{ uri: item.flags.png }}
+              style={Styles.flag}
+            ></Image>
+            <Text style={Styles.name}>{item.name.common}</Text>
+          </Pressable>
+        )}
+        numColumns={2} // Display items in two columns
+        columnWrapperStyle={{ justifyContent: "space-between" }} // Adjust spacing
+        contentContainerStyle={{
+          paddingTop: 70,
+          paddingHorizontal: 10,
+        }} // Add padding for top and sides
+        ListHeaderComponent={
+          <>
           <SearchBar value={text} onChangeText={handleSearch} />
 
-          {text ? (
-            <Text style={{ paddingLeft: 10, fontSize: 18 }}>
-              Search results ({results ? results.length : countries.length})
-            </Text>
-          ) : (
-            <Text style={{ paddingLeft: 10, fontSize: 18 }}>
-              All countries ({results ? results.length : countries.length})
-            </Text>
-          )}
-          <View style={Styles.grid}>
-            {(results || countries).map((country) => (
-              <Pressable
-                onPress={() => navigation.navigate("Country", country)}
-                key={country.name.common}
-                style={Styles.gridItem}
-              >
-                <Image
-                  source={{ uri: country.flags.png }}
-                  style={Styles.flag}
-                ></Image>
-                <Text style={Styles.name}>{country.name.common}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </View>
+{text ? (
+  <Text style={{ paddingLeft: 10, fontSize: 18 }}>
+    Search results ({results ? results.length : countries.length})
+  </Text>
+) : (
+  <Text style={{ paddingLeft: 10, fontSize: 18 }}>
+    All countries ({results ? results.length : countries.length})
+  </Text>
+)}
+          </>
+        } // Add search bar as a header
+        ListHeaderComponentStyle={{ paddingBottom: 10 }} // Add spacing below the header
+      />
+    </SafeAreaView>
   );
+  
 }
 
 const Styles = StyleSheet.create({
@@ -156,5 +162,13 @@ const Styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#999",
     marginBottom: 16,
+  },
+  item: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  text: {
+    fontSize: 18,
   },
 });
